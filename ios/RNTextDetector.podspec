@@ -15,5 +15,5 @@ Pod::Spec.new do |s|
 
 
   s.dependency     "React"
-  s.dependency     'TesseractOCRiOS', '~> 4.0.0'
+  s.dependency     "TesseractOCRiOS"
 end
