@@ -36,7 +36,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-core:16.0.1'
-    implementation 'com.google.firebase:firebase-ml-vision:17.0.0'
+    implementation "com.google.android.gms:play-services-mlkit-text-recognition:+"
     implementation 'com.facebook.react:react-native:+'
 }

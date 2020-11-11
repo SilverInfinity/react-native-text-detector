@@ -2,7 +2,7 @@
 package com.fetchsky.RNTextDetector;
 
 import android.graphics.Rect;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -14,24 +14,24 @@ import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.text.FirebaseVisionText;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
 
 import java.io.IOException;
 
 public class RNTextDetectorModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
-  private FirebaseVisionTextRecognizer detector;
-  private FirebaseVisionImage image;
+  private TextRecognizer detector;
+  private InputImage image;
 
   public RNTextDetectorModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
     try {
-        detector = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+        detector = TextRecognition.getClient();
     }
     catch (IllegalStateException e) {
         e.printStackTrace();
@@ -41,12 +41,12 @@ public class RNTextDetectorModule extends ReactContextBaseJavaModule {
   @ReactMethod
     public void detectFromUri(String uri, final Promise promise) {
         try {
-            image = FirebaseVisionImage.fromFilePath(this.reactContext, android.net.Uri.parse(uri));
-            Task<FirebaseVisionText> result =
-                    detector.processImage(image)
-                            .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+            image = InputImage.fromFilePath(this.reactContext, android.net.Uri.parse(uri));
+            Task<Text> result =
+                    detector.process(image) // need to close this detector?
+                            .addOnSuccessListener(new OnSuccessListener<Text>() {
                                 @Override
-                                public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                                public void onSuccess(Text firebaseVisionText) {
                                     promise.resolve(getDataAsArray(firebaseVisionText));
                                 }
                             })
@@ -70,12 +70,12 @@ public class RNTextDetectorModule extends ReactContextBaseJavaModule {
      * @param firebaseVisionText
      * @return
      */
-    private WritableArray getDataAsArray(FirebaseVisionText firebaseVisionText) {
+    private WritableArray getDataAsArray(Text firebaseVisionText) {
         WritableArray data = Arguments.createArray();
         WritableMap info = Arguments.createMap();
         WritableMap coordinates = Arguments.createMap();
 
-        for (FirebaseVisionText.TextBlock block: firebaseVisionText.getTextBlocks()) {
+        for (Text.TextBlock block: firebaseVisionText.getTextBlocks()) {
             info = Arguments.createMap();
             coordinates = Arguments.createMap();
 
